@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<features name="${feature.name}-${project.version}">
+    <!--
+        Usage:
+        features:addurl mvn:${project.groupId}/${project.artifactId}/${project.version}/xml/features
+     -->
+
+    <repository>mvn:com.integration.product.connectivity/jms-connectivity-provider/${connectivity-jms.version}/xml/features</repository>
+    <repository>mvn:com.integration.product.connectivity/xads-connectivity-provider/${connectivity-xads.version}/xml/features</repository>
+    <repository>mvn:com.integration.service/mailer-service/${mailer.version}/xml/features</repository>
+
+    <feature name="${feature.name}-deps" version="${project.version}">
+        <feature version="${connectivity-jms.version}">integ-connectivityJms</feature>
+        <feature version="${connectivity-xads.version}">integ-connectivityXads</feature>
+        <feature version="${mailer.version}">integ-genericMailer</feature>
+        <feature>hibernate</feature>
+        <feature>camel-hazelcast</feature>
+        <feature>camel-spring</feature>
+        <feature>camel-jaxb</feature>
+        <feature>camel-jpa</feature>
+        <feature>camel-velocity</feature>
+
+        <bundle dependency='true' start-level="50">mvn:com.hazelcast/hazelcast-spring/${hazelcast.version}</bundle>
+    </feature>
+
+    <feature name="${feature.name}" version="${project.version}">
+        <feature version="${project.version}">${feature.name}-deps</feature>
+        <bundle>mvn:${project.groupId}/${project.artifactId}/${project.version}</bundle>
+    </feature>
+
+    <feature name="${feature.name}-docker-connectivity" version="${project.version}">
+        <feature version="${connectivity-jms.version}">integ-connectivityJms-jms1</feature>
+        <feature version="${connectivity-xads.version}">integ-connectivityXads-xads1</feature>
+        <feature version="${connectivity-xads.version}">integ-connectivityXads-db-${docker.xads1.driver}</feature>
+    </feature>
+</features>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:osgi="http://www.springframework.org/schema/osgi"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                        http://www.springframework.org/schema/osgi
+                        http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+    <osgi:reference id="ariesTransactionManager" interface="javax.transaction.TransactionManager"/>
+    <osgi:reference id="entityManagerFactory" interface="javax.persistence.EntityManagerFactory" filter="(osgi.unit.name=generic_error_handler_pu)"/>
+    <osgi:reference id="defaultDataSource" interface="javax.sql.DataSource" filter="(integ.xads.default=true)(aries.xa.aware=true)"/>
+    <osgi:reference id="defaultSingleXAConnectionFactory" filter="(integ.conn.jms.default=true)(integ.conn.jms.tx.direction=in)">
+        <osgi:interfaces>
+            <value>javax.jms.ConnectionFactory</value>
+            <value>javax.jms.QueueConnectionFactory</value>
+            <value>javax.jms.TopicConnectionFactory</value>
+        </osgi:interfaces>
+    </osgi:reference>
+
+</beans>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet author="abc" failOnError="true" id="createOpenjpaSequenceIfNotExist">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="OPENJPA_SEQUENCE_TABLE"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="OPENJPA_SEQUENCE_TABLE">
+            <column name="ID" type="TINYINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="SEQUENCE_VALUE" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="abc" failOnError="true" id="createSchemaForGenericErrorReporting">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="QGER_POLICY"/>
+                <tableExists tableName="QGER_HANDLER"/>
+                <tableExists tableName="QGER_POLICY_TO_HANDLER"/>
+                <tableExists tableName="QGER_MAIL_HANDLER"/>
+                <tableExists tableName="QGER_MAIL_HANDLER_RCPTS"/>
+            </not>
+            <!--
+                No need to check index as no table will exist. Leaving this for future reference
+                <sqlCheck expectedResult="0">select count(*) from sys.indexes where name='I_QGR_DLR_DTYPE' and object_name(object_id)='QGER_HANDLER'</sqlCheck>
+            -->
+        </preConditions>
+
+        <createTable tableName="QGER_POLICY">
+            <column name="ID" type="BIGINT"><constraints nullable="false" primaryKey="true" /></column>
+            <column name="DESTINATION" type="VARCHAR(64)"><constraints unique="true" uniqueConstraintName="U_QGR_LCY_DESTINATION" /></column>
+            <column name="SEVERITY" type="VARCHAR(64)"><constraints nullable="false" /></column>
+            <column name="VERSION_" type="BIGINT"><constraints nullable="false" /></column>
+        </createTable>
+
+        <createTable tableName="QGER_HANDLER">
+            <column name="ID" type="BIGINT"><constraints nullable="false" primaryKey="true" /></column>
+            <column name="HANDLER_TYPE" type="VARCHAR(64)"><constraints nullable="false" /></column>
+        </createTable>
+
+        <createTable tableName="QGER_POLICY_TO_HANDLER">
+            <column name="POLICY_ID" type="BIGINT"><constraints nullable="false" /></column>
+            <column name="HANDLER_ID" type="BIGINT"><constraints nullable="false" /></column>
+        </createTable>
+
+        <createTable tableName="QGER_MAIL_HANDLER">
+            <column name="ID" type="BIGINT"><constraints nullable="false" primaryKey="true" /></column>
+            <column name="BODY_VELOCITY_TEMPLATE" type="VARCHAR(MAX)"><constraints nullable="false" /></column>
+            <column name="CONTENT_TYPE" type="VARCHAR(64)"><constraints nullable="false" /></column>
+            <column name="FROM_" type="VARCHAR(64)"><constraints nullable="false" /></column>
+            <column name="REPLY_TO" type="VARCHAR(64)"><constraints nullable="false" /></column>
+            <column name="SENDER" type="VARCHAR(64)"/>
+            <column name="SUBJECT" type="VARCHAR(256)"><constraints nullable="false" /></column>
+        </createTable>
+
+        <createTable tableName="QGER_MAIL_HANDLER_RCPTS">
+            <column name="MAIL_HANDLER_ID" type="BIGINT"><constraints nullable="false" /></column>
+            <column name="RECIPIENT" type="VARCHAR(64)"><constraints nullable="false" /></column>
+            <column name="ECID" type="BIGINT"><constraints nullable="true" unique="false"/></column>
+        </createTable>
+
+        <createIndex tableName="QGER_HANDLER" indexName="I_QGR_DLR_DTYPE">
+            <column name="HANDLER_TYPE"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseTableName="QGER_MAIL_HANDLER" baseColumnNames="ID" constraintName="FK_QGER_MAIL_HANDLER_TO_H"
+                                 referencedTableName="QGER_HANDLER" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint baseTableName="QGER_MAIL_HANDLER_RCPTS" baseColumnNames="MAIL_HANDLER_ID" constraintName="FK_QGER_MAIL_HAND_RCPT_TO_MH"
+                                 referencedTableName="QGER_MAIL_HANDLER" referencedColumnNames="ID"/>
+
+        <addForeignKeyConstraint baseTableName="QGER_POLICY_TO_HANDLER" baseColumnNames="POLICY_ID" constraintName="FK_QGER_POLICY_TO_HANDLER_TO_P"
+                                 referencedTableName="QGER_POLICY" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint baseTableName="QGER_POLICY_TO_HANDLER" baseColumnNames="HANDLER_ID" constraintName="FK_QGER_POLICY_TO_HANDLER_TO_H"
+                                 referencedTableName="QGER_HANDLER" referencedColumnNames="ID"/>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+       xmlns:ctx="http://www.springframework.org/schema/context"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                       http://www.springframework.org/schema/beans/spring-beans.xsd
+                       http://www.springframework.org/schema/osgi-compendium
+                       http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd
+                       http://www.springframework.org/schema/context
+                       http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <osgix:cm-properties id="properties" persistent-id="com.integ.error.generic.reporting">
+        <prop key="ger.jms.instance">policy</prop>
+        <prop key="ger.xads.instance">policy</prop>
+
+        <prop key="ger.hz.map.GER_MAP.name">gerFailureDetails</prop>
+
+        <prop key="ger.xmlMailerEndpoint">jmstx:queue:esb.mailer.xmlMessage</prop>
+
+        <prop key="ger.config.synchronisation.delay">60000</prop>
+        <prop key="ger.dlqAlertsWaitForHazelcastInMs">5000</prop>
+    </osgix:cm-properties>
+    
+    <ctx:property-placeholder properties-ref="properties"/>
+
+</beans>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet author="abc" failOnError="true" id="createSchemaForGenericErrorReporting">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="QGER_POLICY"/>
+            <tableExists tableName="QGER_HANDLER"/>
+            <tableExists tableName="QGER_POLICY_TO_HANDLER"/>
+            <tableExists tableName="QGER_MAIL_HANDLER"/>
+            <tableExists tableName="QGER_MAIL_HANDLER_RCPTS"/>
+            <not>
+                <columnExists tableName="QGER_MAIL_HANDLER_RCPTS" columnName="ECID"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="QGER_MAIL_HANDLER_RCPTS">
+            <column name="ECID" type="BIGINT"><constraints nullable="true" unique="false"/></column>
+        </addColumn>
+        <update tableName="QGER_MAIL_HANDLER_RCPTS"><column name="ECID" value="0"/></update>
+
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <include file="deployment/liquibase-files/default/160125-create_generic_error_reporting_schema_from_scratch.xml" relativeToChangelogFile="false"/>
+    <include file="deployment/liquibase-files/default/170320-update_mail_handler_rcpts_table_if_exists.xml" relativeToChangelogFile="false"/>
+</databaseChangeLog>

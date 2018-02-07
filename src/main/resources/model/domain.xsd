@@ -1,0 +1,172 @@
+<?xml version="1.0" standalone="yes"?>
+<schema version="1.0" xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+        xmlns:hj="http://hyperjaxb3.jvnet.org/ejb/schemas/customizations"
+        xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+        xmlns:orm="http://java.sun.com/xml/ns/persistence/orm"
+        xmlns:q="http://www.integ.com/error/generic/reporting/domain"
+        jaxb:extensionBindingPrefixes="hj orm xjc"
+        jaxb:version="2.1"
+        targetNamespace="http://www.integ.com/error/generic/reporting/domain">
+
+    <annotation>
+        <appinfo>
+            <jaxb:globalBindings localScoping="toplevel">
+                <jaxb:javaType name="java.util.Calendar" xmlType="dateTime"
+                               parseMethod="javax.xml.bind.DatatypeConverter.parseDateTime"
+                               printMethod="javax.xml.bind.DatatypeConverter.printDateTime"/>
+                <jaxb:javaType name="java.util.Calendar" xmlType="date"
+                               parseMethod="javax.xml.bind.DatatypeConverter.parseDate"
+                               printMethod="javax.xml.bind.DatatypeConverter.printDate"/>
+                <xjc:serializable uid="-1"/>
+            </jaxb:globalBindings>
+        </appinfo>
+    </annotation>
+
+    <complexType name="genericErrorReportingPolicy">
+        <annotation>
+            <appinfo>
+                <hj:entity>
+                    <orm:table name="QGER_POLICY"/>
+                </hj:entity>
+            </appinfo>
+        </annotation>
+        <sequence>
+            <element name="id" type="long" minOccurs="0">
+                <annotation>
+                    <appinfo>
+                        <hj:id name="id">
+                            <orm:generated-value strategy="AUTO"/>
+                        </hj:id>
+                    </appinfo>
+                </annotation>
+            </element>
+            <element name="version" type="long">
+                <annotation>
+                    <appinfo>
+                        <hj:version name="VERSION"/>
+                    </appinfo>
+                </annotation>
+            </element>
+            <element name="destination" type="q:stringMin1Max64">
+                <annotation>
+                    <appinfo>
+                        <documentation>
+                            Queue name from which failed message are consumed.
+                            If not matched, then searches for policy for destination with name "*"
+                            So "*" is default for non matched destinations.
+                        </documentation>
+
+                        <hj:basic>
+                            <orm:column unique="true" />
+                        </hj:basic>
+                    </appinfo>
+                </annotation>
+            </element>
+            <element name="severity" type="q:stringMin1Max64"/>
+            <element name="handlers" type="q:handler" minOccurs="0" maxOccurs="unbounded">
+                <annotation>
+                    <appinfo>
+                        <hj:many-to-many fetch="EAGER" >
+                            <orm:join-table name="QGER_POLICY_TO_HANDLER">
+                                <orm:join-column name="POLICY_ID"/>
+                                <orm:inverse-join-column name="HANDLER_ID"/>
+                            </orm:join-table>
+                            <orm:cascade>
+                                <orm:cascade-all/>
+                            </orm:cascade>
+                        </hj:many-to-many>
+                    </appinfo>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="handler" abstract="true">
+        <annotation>
+            <appinfo>
+                <hj:entity>
+                    <orm:table name="QGER_HANDLER"/>
+                    <orm:discriminator-column name="HANDLER_TYPE"/>
+                </hj:entity>
+            </appinfo>
+        </annotation>
+        <sequence>
+            <element name="id" type="long" minOccurs="0">
+                <annotation>
+                    <appinfo>
+                        <hj:id name="id">
+                            <orm:generated-value strategy="AUTO"/>
+                        </hj:id>
+                    </appinfo>
+                </annotation>
+            </element>
+            <element name="handlerType" type="q:stringMin1Max64">
+                <annotation>
+                    <appinfo>
+                        <hj:basic>
+                            <orm:column name="HANDLER_TYPE"/>
+                        </hj:basic>
+                    </appinfo>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="mailHandler">
+        <annotation>
+            <appinfo>
+                <hj:entity>
+                    <orm:table name="QGER_MAIL_HANDLER"/>
+                    <orm:discriminator-value>MAIL</orm:discriminator-value>
+                </hj:entity>
+            </appinfo>
+        </annotation>
+        <complexContent>
+            <extension base="q:handler">
+                <sequence>
+                    <element name="contentType" type="q:stringMin1Max64"/>
+                    <element name="from" type="q:stringMin1Max64"/>
+                    <element name="sender" type="q:stringMin1Max64"/>
+                    <element name="replyTo" type="q:stringMin1Max64"/>
+                    <element name="subject" type="q:stringMin1Max256"/>
+                    <element name="bodyVelocityTemplate" type="q:stringMax"/>
+                    <element name="to" type="q:stringMin1Max64" maxOccurs="unbounded">
+                        <annotation>
+                            <appinfo>
+                                <hj:element-collection name="recipients" fetch="EAGER">
+                                    <orm:order-column name="ECID"/>
+                                    <orm:column name="RECIPIENT"/>
+                                    <orm:collection-table name="QGER_MAIL_HANDLER_RCPTS">
+                                        <orm:join-column name="MAIL_HANDLER_ID"/>
+                                    </orm:collection-table>
+                                </hj:element-collection>
+                            </appinfo>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <simpleType name="stringMin1Max64">
+        <restriction base="string">
+            <minLength value="1"/>
+            <maxLength value="64"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="stringMin1Max256">
+        <restriction base="string">
+            <minLength value="1"/>
+            <maxLength value="256"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="stringMax">
+        <restriction base="string">
+            <maxLength value="320000"/>
+        </restriction>
+    </simpleType>
+
+</schema>
